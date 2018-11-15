@@ -1,6 +1,8 @@
 # WordPress-Contributors
 The goal of the plugin is allows you to add more than one author in the post. You can Add/Manage contributors from the WordPress dashboard while add or edit posts. At the end of post you can see "Contributors" which you have selected from admin dashboard.
 
+Demo : [WordPress Contributors](http://rtcamp.indiaprod.in/lorem-ipsum/)
+
 ## Technology Used :
 - Html
 - Css
