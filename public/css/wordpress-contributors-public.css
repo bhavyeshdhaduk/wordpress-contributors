@@ -1,0 +1,17 @@
+/**
+ * Frontend css
+ */
+
+.cb-box {
+	float: left;
+	margin: 5px;
+	min-height: 145px;
+	text-align: center;
+	width: 100px;
+}
+
+.entry-content .rt-contributor a {
+	box-shadow: none;
+	font-size: 14px;
+	text-decoration: none;
+}
