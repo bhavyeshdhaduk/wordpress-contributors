@@ -91,17 +91,18 @@ class WordPress_Contributors_Public {
 
 				foreach ( $post_contributors_list as $contributor ) {
 					$user_obj = get_user_by( 'id', $contributor );
+					if ( $user_obj ) {
+						if ( $user_obj->first_name || $user_obj->last_name ) {
+							$username = $user_obj->first_name . ' ' . $user_obj->last_name;
+						} else {
+							$username = $user_obj->display_name;
+						}
 
-					if ( $user_obj->first_name || $user_obj->last_name ) {
-						$username = $user_obj->first_name . ' ' . $user_obj->last_name;
-					} else {
-						$username = $user_obj->display_name;
+						$cont_html .= '<div class="cb-box">';
+						$cont_html .= get_avatar( $user_obj->ID, 75 );
+						$cont_html .= '<div class="rt-contributor"><a alt="' . esc_html( $username ) . '" href="' . get_author_posts_url( $user_obj->ID ) . '">' . esc_html( $username ) . '</a></div>';
+						$cont_html .= '</div>';
 					}
-
-					$cont_html .= '<div class="cb-box">';
-					$cont_html .= get_avatar( $user_obj->ID, 75 );
-					$cont_html .= '<div class="rt-contributor"><a alt="' . esc_html( $username ) . '" href="' . get_author_posts_url( $user_obj->ID ) . '">' . esc_html( $username ) . '</a></div>';
-					$cont_html .= '</div>';
 				}
 
 				$cont_html .= '</div>';
