@@ -83,11 +83,16 @@ class WordPress_Contributors_Admin {
 	 */
 	public function render_contributors_metaox( $post, $box ) {
 		$post_contributors_list = get_post_meta( $post->ID, 'rtcamp_post_contributors_list', true );
+		$post_author_id         = $post->post_author;
+
 		// We'll use this nonce field later on when saving.
 		wp_nonce_field( 'rtcamp_contributors_box_nonce', 'contributors_box_nonce' );
 
-		$blog_users = get_users( [ 'role__in' => [ 'author', 'editor', 'administrator' ] ] );
+		$blog_users = get_users();
 		foreach ( $blog_users as $blog_user ) {
+			if ( ! $blog_user->has_cap( 'edit_posts' ) ) {
+				continue;
+			}
 			?>
 			<label for="contributor_checkbox_<?php echo esc_html( $blog_user->ID ); ?>" class="contributor-chek-lbl"> 
 				<input type="checkbox" class="contributor-checkbox" id="contributor_checkbox_<?php echo esc_html( $blog_user->ID ); ?>" name="contributors_checkbox[]" value="<?php echo esc_html( $blog_user->ID ); ?>" 
@@ -97,9 +102,14 @@ class WordPress_Contributors_Admin {
 						echo "checked='checked'";
 					}
 				}
+
+				if ( (string) $post_author_id === (string) $blog_user->ID ) {
+					echo "checked='checked'";
+					echo "disabled='disabled'";
+				}
 				?>
 				/>
-				<?php echo esc_html( $blog_user->display_name ); ?>
+				<?php echo esc_html( $blog_user->first_name . ' ' . $blog_user->last_name . ' (' . $blog_user->user_login . ') ' ); ?>
 			</label>
 			<?php
 		}
