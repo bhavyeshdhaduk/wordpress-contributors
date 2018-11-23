@@ -57,6 +57,12 @@ class WordPress_Contributors_Public {
 		// Add Contributor to post.
 		add_filter( 'the_content', array( $this, 'show_post_contributors' ), 10 );
 
+		// Modify author post list based on contributor.
+		add_filter( 'posts_where', array( $this, 'author_modify_post_query' ), 10, 2 );
+
+		// Add Title based on author.
+		add_filter( 'get_the_archive_title', array( $this, 'set_the_archive_title' ), 10 );
+
 	}
 
 	/**
@@ -75,28 +81,82 @@ class WordPress_Contributors_Public {
 
 		global $post;
 		$cont_html = '';
-
 		if ( is_singular( 'post' ) ) {
-			$post_contributors_list = get_post_meta( $post->ID, 'rtcamp_post_contributors_list', true );
+			$post_contributors_list   = get_post_meta( $post->ID, 'rtcamp_post_contributors_list', true );
+			$post_contributors_list[] = $post->post_author;
 
 			if ( ! empty( $post_contributors_list ) ) {
 				$cont_html .= '<div class="rt-contributors">';
 				$cont_html .= '<h4>' . __( 'Contributors' ) . '</h4>';
 
 				foreach ( $post_contributors_list as $contributor ) {
-					$user_obj   = get_user_by( 'id', $contributor );
+					$user_obj = get_user_by( 'id', $contributor );
+
+					if ( $user_obj->first_name || $user_obj->last_name ) {
+						$username = $user_obj->first_name . ' ' . $user_obj->last_name;
+					} else {
+						$username = $user_obj->display_name;
+					}
+
 					$cont_html .= '<div class="cb-box">';
 					$cont_html .= get_avatar( $user_obj->ID, 75 );
-					$cont_html .= '<div class="rt-contributor"><a alt="' . esc_html( $user_obj->display_name ) . '" href="' . get_author_posts_url( $user_obj->ID ) . '">' . esc_html( $user_obj->display_name ) . '</a></div>';
+					$cont_html .= '<div class="rt-contributor"><a alt="' . esc_html( $username ) . '" href="' . get_author_posts_url( $user_obj->ID ) . '">' . esc_html( $username ) . '</a></div>';
 					$cont_html .= '</div>';
 				}
 
 				$cont_html .= '</div>';
 			}
 		}
-
 		return $content . $cont_html;
+	}
 
+	/**
+	 * Display Author's Contribution posts
+	 *
+	 * @param string $where The where clause of the query.
+	 * @param object $q main query of author page.
+	 */
+	public function author_modify_post_query( $where, WP_Query $q ) {
+
+		global $wpdb;
+		if ( ! is_admin() && $q->is_main_query() && $q->is_author() ) {
+			$author_name = $q->query_vars['author_name'];
+			$author      = get_user_by( 'slug', $author_name );
+			if ( isset( $author->ID ) ) {
+				$author_id = $author->ID;
+				$args      = array(
+					'post_status' => 'publish',
+					'fields'      => 'ids',
+					'meta_query'  => array(
+						array(
+							'key'     => 'rtcamp_post_contributors_list',
+							'value'   => serialize( strval( $author_id ) ),
+							'compare' => 'LIKE',
+						),
+					),
+				);
+				$post_ids  = get_posts( $args );
+				if ( ! empty( $post_ids ) ) {
+					$post_ids_str = implode( ', ', $post_ids );
+					$where       .= " OR ( $wpdb->posts.ID IN ($post_ids_str)  ) ";
+				}
+			}
+		}
+		return $where;
+	}
+
+	/**
+	 * Modify Author's Title
+	 *
+	 * @param string $title archive title.
+	 */
+	public function set_the_archive_title( $title ) {
+
+		if ( is_author() ) {
+			$curauth = ( get_query_var( 'author_name' ) ) ? get_user_by( 'slug', get_query_var( 'author_name' ) ) : get_userdata( get_query_var( 'author' ) );
+			$title   = '<h1 class="page-title">Author: <span class="vcard">' . $curauth->display_name . '</span></h1>';
+		}
+		return $title;
 	}
 
 }
