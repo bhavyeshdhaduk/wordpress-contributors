@@ -26,4 +26,4 @@ You can add the contributors user names and avtar in 'Edit Post' and 'Add new Po
 
 ## Author
 
-* **Bhavyesh Dhaduk**- [WordPress Contributors](https://github.com/bhavyeshdhaduk/wordpress-contributors)
+* **Bhavyesh Dhaduk**- [Home journal](https://homejournal.in)
