@@ -26,4 +26,4 @@ You can add the contributors user names and avtar in 'Edit Post' and 'Add new Po
 
 ## Author
 
-* **Bhavyesh Dhaduk**- [Home journal](https://homejournal.in)
+* **Bhavyesh Dhaduk**- [obcindia](https://obcindia.com)
